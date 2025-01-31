@@ -59,35 +59,49 @@ public class Jerry {
         text = input.nextLine();
         Task[] list = new Task[100];
         while (!text.equals("bye")) {
-            if (text.equals("list")) {
+            String command = text.split("\\s+")[0]; // Extract first word (command)
+
+            switch (command) {
+            case "list":
                 printList(list);
-                text = input.nextLine();
-                continue;
-            } else if (text.startsWith("mark")) {
-                int i = Integer.parseInt(text.substring(5).trim());
-                list[i - 1].markAsDone();
+                break;
+
+            case "mark":
+                try {
+                    int i = Integer.parseInt(text.substring(5).trim());
+                    list[i - 1].markAsDone();
+                    printHoriLine();
+                    printTab("Marked task " + i + " as done");
+                    System.out.print("\t");
+                    list[i - 1].printTask();
+                    printHoriLine();
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    printTab("Invalid mark format! Expected: mark <number>");
+                }
+                break;
+
+            case "unmark":
+                try {
+                    int i = Integer.parseInt(text.substring(7).trim());
+                    list[i - 1].markAsNotDone();
+                    printHoriLine();
+                    printTab("Marked task " + i + " as not done");
+                    System.out.print("\t");
+                    list[i - 1].printTask();
+                    printHoriLine();
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    printTab("Invalid unmark format! Expected: unmark <number>");
+                }
+                break;
+
+            default:
+                newEntry(list, text);
                 printHoriLine();
-                printTab("Marked task " + i + " as done");
-                System.out.print("\t");
-                list[i - 1].printTask();
+                printTab("added: " + text);
                 printHoriLine();
-                text = input.nextLine();
-                continue;
-            } else if (text.startsWith("unmark")) {
-                int i = Integer.parseInt(text.substring(7).trim());
-                list[i - 1].markAsNotDone();
-                printHoriLine();
-                printTab("Marked task " + i + " as not done");
-                System.out.print("\t");
-                list[i - 1].printTask();
-                printHoriLine();
-                text = input.nextLine();
-                continue;
+                break;
             }
-            newEntry(list, text);
-            printHoriLine();
-            printTab("added: " + text);
-            printHoriLine();
+
             text = input.nextLine();
         }
         exitText();
