@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class Jerry {
-        public static void printTab(String message) {
-            System.out.println("\t" + message);
-        }
+    public static void printTab(String message) {
+        System.out.println("\t" + message);
+    }
 
     public static void printHoriLine() {
         for (int i = 50; i > 0; i--) {
@@ -31,20 +31,21 @@ public class Jerry {
         printHoriLine();
     }
 
-    public static void printList(String[] list) {
+    public static void printList(Task[] list) {
         printHoriLine();
         for (int i = 0; i < list.length; i++) {
             if (list[i] != null) {
-                printTab(i+1 + ". " + list[i]);
+                System.out.print("\t" + (i + 1) + ". ");
+                list[i].printTask();
             }
         }
         printHoriLine();
     }
 
-    public static void newEntry(String[] list, String key) {
+    public static void newEntry(Task[] list, String key) {
         for (int i = 0; i < list.length; i++) {
             if (list[i] == null) {
-                list[i] = key;
+                list[i] = new Task(key);
                 return;
             }
         }
@@ -56,15 +57,33 @@ public class Jerry {
         String text;
         Scanner input = new Scanner(System.in);
         text = input.nextLine();
-        String[] list = new String[100];
+        Task[] list = new Task[100];
         while (!text.equals("bye")) {
-            //if text == list, printList, text=input, skip the rest of the loop
             if (text.equals("list")) {
                 printList(list);
                 text = input.nextLine();
                 continue;
+            } else if (text.startsWith("mark")) {
+                int i = Integer.parseInt(text.substring(5).trim());
+                list[i - 1].markAsDone();
+                printHoriLine();
+                printTab("Marked task " + i + " as done");
+                System.out.print("\t");
+                list[i - 1].printTask();
+                printHoriLine();
+                text = input.nextLine();
+                continue;
+            } else if (text.startsWith("unmark")) {
+                int i = Integer.parseInt(text.substring(7).trim());
+                list[i - 1].markAsNotDone();
+                printHoriLine();
+                printTab("Marked task " + i + " as not done");
+                System.out.print("\t");
+                list[i - 1].printTask();
+                printHoriLine();
+                text = input.nextLine();
+                continue;
             }
-            //1. add text to list, print added: readback, text = input
             newEntry(list, text);
             printHoriLine();
             printTab("added: " + text);
