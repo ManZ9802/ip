@@ -19,7 +19,8 @@ public class Task {
         isDone = false;
     }
 
-    public void printTask() {
-        System.out.println(getStatusIcon() + " " + description);
+    @Override
+    public String toString() {
+        return getStatusIcon() + " " + description;
     }
 }

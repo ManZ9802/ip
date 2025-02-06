@@ -12,12 +12,6 @@ public class Jerry {
         System.out.println();
     }
 
-    public static void readBack(String line) {
-        printHoriLine();
-        printTab(line);
-        printHoriLine();
-    }
-
     public static void exitText() {
         printHoriLine();
         printTab("Bye have a great time!");
@@ -35,22 +29,38 @@ public class Jerry {
         printHoriLine();
         for (int i = 0; i < list.length; i++) {
             if (list[i] != null) {
-                System.out.print("\t" + (i + 1) + ". ");
-                list[i].printTask();
+                System.out.println("\t" + (i + 1) + ". " + list[i]);
             }
         }
         printHoriLine();
     }
 
-    public static void newEntry(Task[] list, String key) {
+    public static void newEntry(Task[] list, Task key) {
         for (int i = 0; i < list.length; i++) {
             if (list[i] == null) {
-                list[i] = new Task(key);
+                list[i] = key;
                 return;
             }
         }
     }
 
+    public static void printNewEntry(Task[] list, Task key) {
+        printHoriLine();
+        printTab("Added task to list:");
+        System.out.println("\t" + key);
+        printTab("Now you have " + getListSize(list) + " task(s)");
+        printHoriLine();
+    }
+
+    public static int getListSize(Task[] list) {
+        int size = 0;
+        for (Task task : list) {
+            if (task != null) {
+                size++;
+            }
+        }
+        return size;
+    }
 
     public static void main(String[] args) {
         enterText();
@@ -72,8 +82,7 @@ public class Jerry {
                     list[i - 1].markAsDone();
                     printHoriLine();
                     printTab("Marked task " + i + " as done");
-                    System.out.print("\t");
-                    list[i - 1].printTask();
+                    System.out.println("\t" + list[i - 1]);
                     printHoriLine();
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
                     printTab("Invalid mark format! Expected: mark <number>");
@@ -86,18 +95,41 @@ public class Jerry {
                     list[i - 1].markAsNotDone();
                     printHoriLine();
                     printTab("Marked task " + i + " as not done");
-                    System.out.print("\t");
-                    list[i - 1].printTask();
+                    System.out.println("\t" + list[i - 1]);
                     printHoriLine();
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
                     printTab("Invalid unmark format! Expected: unmark <number>");
                 }
                 break;
 
+            case "todo":
+                Todo todo = new Todo(text.substring(4).trim());
+                newEntry(list, todo);
+                printNewEntry(list, todo);
+                break;
+
+            case "deadline":
+                String description = text.substring(8, text.indexOf('/')).trim();
+                String by = text.substring(text.indexOf('/') + 4).trim();
+                Deadline deadline = new Deadline(description, by);
+                newEntry(list, deadline);
+                printNewEntry(list, deadline);
+                break;
+
+            case "event":
+                String eventDescription = text.substring(6, text.indexOf('/')).trim();
+                int firstIndex = text.indexOf('/');
+                int secondIndex = text.indexOf('/', firstIndex + 1);
+                String start = text.substring(firstIndex + 6, secondIndex).trim();
+                String end = text.substring(secondIndex + 4).trim();
+                Event event = new Event(eventDescription, start, end);
+                newEntry(list, event);
+                printNewEntry(list, event);
+                break;
+
             default:
-                newEntry(list, text);
                 printHoriLine();
-                printTab("added: " + text);
+                printTab("please define task: " + text);
                 printHoriLine();
                 break;
             }
