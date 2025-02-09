@@ -58,20 +58,35 @@ public class CommandManager {
     }
 
     public static void markTask(Task[] list, String text, boolean done) {
-        String number = text.replaceAll("\\D+", ""); // Remove all non-digits
-        int i = Integer.parseInt(number);
-        if (done) {
-            list[i - 1].markAsDone();
+        try {
+            String number = text.replaceAll("\\D+", ""); // Remove all non-digits
+            int i = Integer.parseInt(number);
+            if (done) {
+                list[i - 1].markAsDone();
+                printHoriLine();
+                indentMessage("Marked task " + i + " as done");
+            } else {
+                list[i - 1].markAsNotDone();
+                printHoriLine();
+                indentMessage("Marked task " + i + " as not done");
+            }
+            System.out.println("\t" + list[i - 1]);
             printHoriLine();
-            indentMessage("Marked task " + i + " as done");
-        } else {
-            list[i - 1].markAsNotDone();
+        } catch (NumberFormatException e) {
             printHoriLine();
-            indentMessage("Marked task " + i + " as not done");
+            indentMessage("can't mark a non-numeric task");
+            printHoriLine();
+        } catch (NullPointerException e) {
+            printHoriLine();
+            indentMessage("task does not exist");
+            printHoriLine();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            printHoriLine();
+            indentMessage("list is not that long");
+            printHoriLine();
         }
-        System.out.println("\t" + list[i - 1]);
-        printHoriLine();
     }
+
 
     public static boolean processCommand(Task[] list, String text) {
         String command = text.split("\\s+")[0]; // Extract first word (command)
