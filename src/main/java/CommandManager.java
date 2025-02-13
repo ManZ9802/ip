@@ -30,7 +30,7 @@ public class CommandManager {
         printHoriLine();
     }
 
-    public static void newEntry(Task[] list, Task key) {
+    private static void newEntry(Task[] list, Task key) {
         for (int i = 0; i < list.length; i++) {
             if (list[i] == null) {
                 list[i] = key;
@@ -57,71 +57,125 @@ public class CommandManager {
         return size;
     }
 
-    public static void markTask(Task[] list, String text, boolean done) {
-        String number = text.replaceAll("\\D+", ""); // Remove all non-digits
-        int i = Integer.parseInt(number);
-        if (done) {
-            list[i - 1].markAsDone();
+    private static void markTask(Task[] list, String text, boolean done) {
+            String number = text.replaceAll("\\D+", ""); // Remove all non-digits
+            int i = Integer.parseInt(number);
+            if (done) {
+                list[i - 1].markAsDone();
+                printHoriLine();
+                indentMessage("Marked task " + i + " as done");
+            } else {
+                list[i - 1].markAsNotDone();
+                printHoriLine();
+                indentMessage("Marked task " + i + " as not done");
+            }
+            System.out.println("\t" + list[i - 1]);
             printHoriLine();
-            indentMessage("Marked task " + i + " as done");
-        } else {
-            list[i - 1].markAsNotDone();
-            printHoriLine();
-            indentMessage("Marked task " + i + " as not done");
-        }
-        System.out.println("\t" + list[i - 1]);
-        printHoriLine();
     }
 
-    public static boolean processCommand(Task[] list, String text) {
-        String command = text.split("\\s+")[0]; // Extract first word (command)
-        switch (command) {
-        case "list":
-            printList(list);
-            break;
-
-        case "mark":
-            markTask(list, text, true);
-            break;
-
-        case "unmark":
-            markTask(list, text, false);
-            break;
-
+    private static void createAndAddTask(Task[] list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
+        String taskName = text.substring(type.length()).trim();
+        if (taskName.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        Task newTask;
+        switch (type) {
         case "todo":
-            Todo todo = new Todo(text.substring(4).trim());
-            newEntry(list, todo);
-            printNewEntry(list, todo);
+            newTask = new Todo(text.substring(4).trim());
             break;
 
         case "deadline":
-            String description = text.substring(8, text.indexOf('/')).trim();
+            int byIndex = text.indexOf("/by");
+            if (byIndex == -1) {
+                throw new IllegalDeadlineException();
+            }
+            String description = text.substring(0, text.indexOf('/')).trim();
             String by = text.substring(text.indexOf('/') + 4).trim();
-            Deadline deadline = new Deadline(description, by);
-            newEntry(list, deadline);
-            printNewEntry(list, deadline);
+            if (by.isEmpty()) {
+                throw new IllegalDeadlineException();
+            }
+            newTask = new Deadline(description, by);
             break;
 
         case "event":
+            int fromIndex = text.indexOf("/from");
+            int toIndex = text.indexOf("/to");
+            if (fromIndex == -1 || toIndex == -1 || toIndex <= fromIndex) {
+                throw new IllegalEventException();
+            }
             String eventDescription = text.substring(6, text.indexOf('/')).trim();
-            int firstIndex = text.indexOf('/');
-            int secondIndex = text.indexOf('/', firstIndex + 1);
-            String start = text.substring(firstIndex + 6, secondIndex).trim();
-            String end = text.substring(secondIndex + 4).trim();
-            Event event = new Event(eventDescription, start, end);
-            newEntry(list, event);
-            printNewEntry(list, event);
+            String start = text.substring(text.indexOf('/') + 6, text.lastIndexOf('/')).trim();
+            String end = text.substring(text.lastIndexOf('/') + 4).trim();
+            if (start.isEmpty() || end.isEmpty()) {
+                throw new IllegalEventException();
+            }
+            newTask = new Event(eventDescription, start, end);
             break;
-
-        case "bye":
-            exitText();
-            return false;
 
         default:
-            printHoriLine();
-            indentMessage("please define task: " + text);
-            printHoriLine();
+            newTask = null;
             break;
+        }
+        newEntry(list, newTask);
+        printNewEntry(list, newTask);
+    }
+
+    public static boolean processCommand(Task[] list, String text) {
+        String command = text.split("\\s+")[0];// Extract first word (command)
+        try {
+            switch (command) {
+            case "list":
+                printList(list);
+                break;
+
+            case "mark":
+                markTask(list, text, true);
+                break;
+
+            case "unmark":
+                markTask(list, text, false);
+                break;
+
+            case "todo":
+            case "deadline":
+            case "event":
+                createAndAddTask(list, text, command);
+                break;
+
+            case "bye":
+                exitText();
+                return false;
+
+            default:
+                printHoriLine();
+                indentMessage("please define task: " + text);
+                printHoriLine();
+                break;
+            }
+        } catch (NumberFormatException e) {
+            printHoriLine();
+            indentMessage("can't mark a non-numeric task");
+            printHoriLine();
+        } catch (NullPointerException e) {
+            printHoriLine();
+            indentMessage("task does not exist");
+            printHoriLine();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            printHoriLine();
+            indentMessage("list is not that long");
+            printHoriLine();
+        } catch (IllegalArgumentException e) {
+            printHoriLine();
+            indentMessage("Task Name cannot be empty");
+            printHoriLine();
+        } catch (IllegalDeadlineException e) {
+            printHoriLine();
+            indentMessage("Task entered incorrectly, please enter <Task Name> /by <deadline>");
+            printHoriLine();
+        } catch (IllegalEventException e) {
+            printHoriLine();
+            indentMessage("Task entered incorrectly, please enter <Task Name> /from <start> /to <end>");
+            printHoriLine();
         }
         return true;
     }
