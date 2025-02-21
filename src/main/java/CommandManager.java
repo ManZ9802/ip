@@ -6,7 +6,7 @@ public class CommandManager {
         System.out.println("\t" + message);
     }
 
-    public static void exitText() {
+    public static void exitProcess() {
         printHoriLine();
         indentMessage("Bye have a great time!");
         printHoriLine();
@@ -25,8 +25,12 @@ public class CommandManager {
 
     public static void printList(ArrayList<Task> list) {
         printHoriLine();
-        for (int i = 0; i < list.size(); i++) {
+        if (list.isEmpty()) {
+            indentMessage("No tasks found!");
+        } else {
+            for (int i = 0; i < list.size(); i++) {
                 indentMessage((i + 1) + ": " + list.get(i).toString());
+            }
         }
         printHoriLine();
     }
@@ -40,19 +44,19 @@ public class CommandManager {
     }
 
     private static void markTask(ArrayList<Task> list, String text, boolean done) {
-            String number = text.replaceAll("\\D+", ""); // Remove all non-digits
-            int i = Integer.parseInt(number);
-            if (done) {
-                list.get(i - 1).markAsDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as done");
-            } else {
-                list.get(i - 1).markAsNotDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as not done");
-            }
-            indentMessage(list.get(i - 1).toString());
+        String number = text.replaceAll("\\D+", ""); // Remove all non-digits
+        int i = Integer.parseInt(number);
+        if (done) {
+            list.get(i - 1).markAsDone();
             printHoriLine();
+            indentMessage("Marked task " + i + " as done");
+        } else {
+            list.get(i - 1).markAsNotDone();
+            printHoriLine();
+            indentMessage("Marked task " + i + " as not done");
+        }
+        indentMessage(list.get(i - 1).toString());
+        printHoriLine();
     }
 
     private static void createAndAddTask(ArrayList<Task> list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
@@ -108,7 +112,7 @@ public class CommandManager {
         printHoriLine();
         indentMessage("Noted, deleted task " + i + ": ");
         indentMessage(list.get(i - 1).toString());
-        indentMessage("Now you have " + (list.size() - 1)+ " task(s)");
+        indentMessage("Now you have " + (list.size() - 1) + " task(s)");
         printHoriLine();
         list.remove(i - 1);
     }
@@ -140,7 +144,7 @@ public class CommandManager {
                 break;
 
             case "bye":
-                exitText();
+                exitProcess();
                 return false;
 
             default:
