@@ -13,7 +13,16 @@ public class CommandManager {
         printHoriLine();
         indentMessage("Bye have a great time!");
         printHoriLine();
+        saveList(list);
+    }
+
+    private static void saveList(Task[] list) throws IOException {
         File f = new File("./data/Jerry.txt");
+
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+
         FileWriter fw = new FileWriter("./data/Jerry.txt");
         for (int i = 0; i < getListSize(list); i++) {
             fw.write(list[i].toString() + "\n");
@@ -21,11 +30,72 @@ public class CommandManager {
         fw.close();
     }
 
-    public static void enterText() {
+    public static void enterText(Task[] list) throws FileNotFoundException {
         printHoriLine();
         indentMessage("Hello! I'm Jerry");
         indentMessage("What can I do for you?");
         printHoriLine();
+        loadTask(list);
+    }
+
+    private static void loadTask(Task[] list) throws FileNotFoundException {
+        File file = new File("./data/Jerry.txt");
+        try {
+            if (!file.exists()) {
+                file.getParentFile().mkdirs(); // Ensure the directory exists
+                file.createNewFile(); // Create an empty file
+                return; // No tasks to load
+            }
+        } catch (IOException e) {
+            System.out.println("Error creating file: " + e.getMessage());
+            return;
+        }
+        if (!file.exists()) {
+            return;
+        }
+        Scanner s = new Scanner(file);
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            Task task = parseTask(line);
+            newEntry(list, task);
+        }
+        s.close();
+    }
+
+    private static Task parseTask(String line) {
+        char taskType = line.charAt(1);
+        boolean isDone = line.charAt(4) == 'X';
+        switch (taskType) {
+        case 'T':
+            String tDescription = line.substring(7).trim();
+            Task todo = new Todo(tDescription);
+            if (isDone) {
+                todo.markAsDone();
+            }
+            return todo;
+        case 'D':
+            int byIndex = line.indexOf("(by:");
+            String dDescription = line.substring(7, byIndex).trim();
+            String deadline = line.substring(byIndex + 4, line.length() - 1).trim();
+            Task deadlineTask = new Deadline(dDescription, deadline);
+            if (isDone) {
+                deadlineTask.markAsDone();
+            }
+            return deadlineTask;
+        case 'E':
+            int fromIndex = line.indexOf("(from:");
+            int toIndex = line.indexOf(", to:");
+            String eDescription = line.substring(7, fromIndex).trim();
+            String startTime = line.substring(fromIndex + 6, toIndex).trim();
+            String endTime = line.substring(toIndex + 5, line.length() - 1).trim();
+            Task eventTask = new Event(eDescription, startTime, endTime);
+            if (isDone) {
+                eventTask.markAsDone();
+            }
+            return eventTask;
+        default:
+                return null;
+        }
     }
 
     public static void printHoriLine() {
@@ -70,19 +140,19 @@ public class CommandManager {
     }
 
     private static void markTask(Task[] list, String text, boolean done) {
-            String number = text.replaceAll("\\D+", ""); // Remove all non-digits
-            int i = Integer.parseInt(number);
-            if (done) {
-                list[i - 1].markAsDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as done");
-            } else {
-                list[i - 1].markAsNotDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as not done");
-            }
-            System.out.println("\t" + list[i - 1]);
+        String number = text.replaceAll("\\D+", ""); // Remove all non-digits
+        int i = Integer.parseInt(number);
+        if (done) {
+            list[i - 1].markAsDone();
             printHoriLine();
+            indentMessage("Marked task " + i + " as done");
+        } else {
+            list[i - 1].markAsNotDone();
+            printHoriLine();
+            indentMessage("Marked task " + i + " as not done");
+        }
+        System.out.println("\t" + list[i - 1]);
+        printHoriLine();
     }
 
     private static void createAndAddTask(Task[] list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
