@@ -1,12 +1,24 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class CommandManager {
     public static void indentMessage(String message) {
         System.out.println("\t" + message);
     }
 
-    public static void exitText() {
+    public static void exitProcess(Task[] list) throws IOException {
         printHoriLine();
         indentMessage("Bye have a great time!");
         printHoriLine();
+        File f = new File("./data/Jerry.txt");
+        FileWriter fw = new FileWriter("./data/Jerry.txt");
+        for (int i = 0; i < getListSize(list); i++) {
+            fw.write(list[i].toString() + "\n");
+        }
+        fw.close();
     }
 
     public static void enterText() {
@@ -89,7 +101,7 @@ public class CommandManager {
             if (byIndex == -1) {
                 throw new IllegalDeadlineException();
             }
-            String description = text.substring(0, text.indexOf('/')).trim();
+            String description = text.substring(9, text.indexOf('/')).trim();
             String by = text.substring(text.indexOf('/') + 4).trim();
             if (by.isEmpty()) {
                 throw new IllegalDeadlineException();
@@ -143,7 +155,7 @@ public class CommandManager {
                 break;
 
             case "bye":
-                exitText();
+                exitProcess(list);
                 return false;
 
             default:
@@ -175,6 +187,10 @@ public class CommandManager {
         } catch (IllegalEventException e) {
             printHoriLine();
             indentMessage("Task entered incorrectly, please enter <Task Name> /from <start> /to <end>");
+            printHoriLine();
+        } catch (IOException e) {
+            printHoriLine();
+            e.printStackTrace();
             printHoriLine();
         }
         return true;
