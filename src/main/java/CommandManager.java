@@ -1,3 +1,8 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -6,17 +11,93 @@ public class CommandManager {
         System.out.println("\t" + message);
     }
 
-    public static void exitProcess() {
+    public static void exitProcess(ArrayList<Task> list) throws IOException {
         printHoriLine();
         indentMessage("Bye have a great time!");
         printHoriLine();
+        saveList(list);
     }
 
-    public static void enterText() {
+    private static void saveList(ArrayList<Task> list) throws IOException {
+        File f = new File("./data/Jerry.txt");
+
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+
+        FileWriter fw = new FileWriter("./data/Jerry.txt");
+        for (Task task : list) {
+            fw.write(task.toString() + "\n");
+        }
+        fw.close();
+    }
+
+    public static void enterText(ArrayList<Task> list) throws FileNotFoundException {
         printHoriLine();
         indentMessage("Hello! I'm Jerry");
         indentMessage("What can I do for you?");
         printHoriLine();
+        loadTask(list);
+    }
+
+    private static void loadTask(ArrayList<Task> list) throws FileNotFoundException {
+        File file = new File("./data/Jerry.txt");
+        try {
+            if (!file.exists()) {
+                file.getParentFile().mkdirs(); // Ensure the directory exists
+                file.createNewFile(); // Create an empty file
+                return; // No tasks to load
+            }
+        } catch (IOException e) {
+            System.out.println("Error creating file: " + e.getMessage());
+            return;
+        }
+        if (!file.exists()) {
+            return;
+        }
+        Scanner s = new Scanner(file);
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            Task task = parseTask(line);
+            list.add(task);
+        }
+        s.close();
+    }
+
+    private static Task parseTask(String line) {
+        char taskType = line.charAt(1);
+        boolean isDone = line.charAt(4) == 'X';
+        switch (taskType) {
+        case 'T':
+            String tDescription = line.substring(7).trim();
+            Task todo = new Todo(tDescription);
+            if (isDone) {
+                todo.markAsDone();
+            }
+            return todo;
+        case 'D':
+            int byIndex = line.indexOf("(by:");
+            String dDescription = line.substring(7, byIndex).trim();
+            String deadline = line.substring(byIndex + 4, line.length() - 1).trim();
+            Task deadlineTask = new Deadline(dDescription, deadline);
+            if (isDone) {
+                deadlineTask.markAsDone();
+            }
+            return deadlineTask;
+        case 'E':
+            int fromIndex = line.indexOf("(from:");
+            int toIndex = line.indexOf(", to:");
+            String eDescription = line.substring(7, fromIndex).trim();
+            String startTime = line.substring(fromIndex + 6, toIndex).trim();
+            String endTime = line.substring(toIndex + 5, line.length() - 1).trim();
+            Task eventTask = new Event(eDescription, startTime, endTime);
+            if (isDone) {
+                eventTask.markAsDone();
+            }
+            return eventTask;
+        default:
+            return null;
+        }
     }
 
     public static void printHoriLine() {
@@ -144,7 +225,7 @@ public class CommandManager {
                 break;
 
             case "bye":
-                exitProcess();
+                exitProcess(list);
                 return false;
 
             default:
@@ -176,6 +257,10 @@ public class CommandManager {
         } catch (IllegalEventException e) {
             printHoriLine();
             indentMessage("Task entered incorrectly, please enter <Task Name> /from <start> /to <end>");
+            printHoriLine();
+        } catch (IOException e) {
+            printHoriLine();
+            e.printStackTrace();
             printHoriLine();
         }
         return true;
