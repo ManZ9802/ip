@@ -1,9 +1,12 @@
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class CommandManager {
     public static void indentMessage(String message) {
         System.out.println("\t" + message);
     }
 
-    public static void exitText() {
+    public static void exitProcess() {
         printHoriLine();
         indentMessage("Bye have a great time!");
         printHoriLine();
@@ -20,60 +23,43 @@ public class CommandManager {
         System.out.println("__________________________________________________");
     }
 
-    public static void printList(Task[] list) {
+    public static void printList(ArrayList<Task> list) {
         printHoriLine();
-        for (int i = 0; i < list.length; i++) {
-            if (list[i] != null) {
-                System.out.println("\t" + (i + 1) + ". " + list[i]);
+        if (list.isEmpty()) {
+            indentMessage("No tasks found!");
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                indentMessage((i + 1) + ": " + list.get(i).toString());
             }
         }
         printHoriLine();
     }
 
-    private static void newEntry(Task[] list, Task key) {
-        for (int i = 0; i < list.length; i++) {
-            if (list[i] == null) {
-                list[i] = key;
-                return;
-            }
-        }
-    }
-
-    public static void printNewEntry(Task[] list, Task key) {
+    public static void printNewEntry(ArrayList<Task> list, Task key) {
         printHoriLine();
         indentMessage("Added task to list:");
-        System.out.println("\t" + key);
-        indentMessage("Now you have " + getListSize(list) + " task(s)");
+        indentMessage(key.toString());
+        indentMessage("Now you have " + list.size() + " task(s)");
         printHoriLine();
     }
 
-    public static int getListSize(Task[] list) {
-        int size = 0;
-        for (Task task : list) {
-            if (task != null) {
-                size++;
-            }
-        }
-        return size;
-    }
-
-    private static void markTask(Task[] list, String text, boolean done) {
-            String number = text.replaceAll("\\D+", ""); // Remove all non-digits
-            int i = Integer.parseInt(number);
-            if (done) {
-                list[i - 1].markAsDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as done");
-            } else {
-                list[i - 1].markAsNotDone();
-                printHoriLine();
-                indentMessage("Marked task " + i + " as not done");
-            }
-            System.out.println("\t" + list[i - 1]);
+    private static void markTask(ArrayList<Task> list, String text, boolean done) {
+        String number = text.replaceAll("\\D+", ""); // Remove all non-digits
+        int i = Integer.parseInt(number);
+        if (done) {
+            list.get(i - 1).markAsDone();
             printHoriLine();
+            indentMessage("Marked task " + i + " as done");
+        } else {
+            list.get(i - 1).markAsNotDone();
+            printHoriLine();
+            indentMessage("Marked task " + i + " as not done");
+        }
+        indentMessage(list.get(i - 1).toString());
+        printHoriLine();
     }
 
-    private static void createAndAddTask(Task[] list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
+    private static void createAndAddTask(ArrayList<Task> list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
         String taskName = text.substring(type.length()).trim();
         if (taskName.isEmpty()) {
             throw new IllegalArgumentException();
@@ -89,7 +75,7 @@ public class CommandManager {
             if (byIndex == -1) {
                 throw new IllegalDeadlineException();
             }
-            String description = text.substring(0, text.indexOf('/')).trim();
+            String description = text.substring(9, text.indexOf('/')).trim();
             String by = text.substring(text.indexOf('/') + 4).trim();
             if (by.isEmpty()) {
                 throw new IllegalDeadlineException();
@@ -116,11 +102,22 @@ public class CommandManager {
             newTask = null;
             break;
         }
-        newEntry(list, newTask);
-        printNewEntry(list, newTask);
+        list.add(newTask);
+        printNewEntry(list, Objects.requireNonNull(newTask));
     }
 
-    public static boolean processCommand(Task[] list, String text) {
+    public static void deleteTask(ArrayList<Task> list, String text) {
+        String number = text.replaceAll("\\D+", "");
+        int i = Integer.parseInt(number);
+        printHoriLine();
+        indentMessage("Noted, deleted task " + i + ": ");
+        indentMessage(list.get(i - 1).toString());
+        indentMessage("Now you have " + (list.size() - 1) + " task(s)");
+        printHoriLine();
+        list.remove(i - 1);
+    }
+
+    public static boolean processCommand(ArrayList<Task> list, String text) {
         String command = text.split("\\s+")[0];// Extract first word (command)
         try {
             switch (command) {
@@ -142,8 +139,12 @@ public class CommandManager {
                 createAndAddTask(list, text, command);
                 break;
 
+            case "delete":
+                deleteTask(list, text);
+                break;
+
             case "bye":
-                exitText();
+                exitProcess();
                 return false;
 
             default:

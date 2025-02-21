@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Jerry {
 
@@ -6,7 +7,7 @@ public class Jerry {
         CommandManager.enterText();
         String text;
         Scanner input = new Scanner(System.in);
-        Task[] list = new Task[100];
+        ArrayList<Task> list = new ArrayList<>();
         do {
             text = input.nextLine();
         } while (CommandManager.processCommand(list, text));
