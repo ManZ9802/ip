@@ -120,6 +120,23 @@ public class CommandManager {
         printNewEntry(list, newTask);
     }
 
+    public static void deleteTask(Task[] list, String text) {
+        String number = text.replaceAll("\\D+", "");
+        int i = Integer.parseInt(number);
+        if (list[i - 1] == null) {
+            throw new NullPointerException();
+        }
+        printHoriLine();
+        indentMessage("Noted, deleted task " + i + ": ");
+        indentMessage(list[i - 1].toString());
+        indentMessage("Now you have " + (getListSize(list) - 1)+ " task(s)");
+        printHoriLine();
+        for (int j = i; j < getListSize(list); j++) {
+            list[j-1] = list[j];
+        }
+        list[getListSize(list) - 1] = null;
+    }
+
     public static boolean processCommand(Task[] list, String text) {
         String command = text.split("\\s+")[0];// Extract first word (command)
         try {
@@ -140,6 +157,10 @@ public class CommandManager {
             case "deadline":
             case "event":
                 createAndAddTask(list, text, command);
+                break;
+
+            case "delete":
+                deleteTask(list, text);
                 break;
 
             case "bye":
