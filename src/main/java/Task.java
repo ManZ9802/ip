@@ -19,10 +19,6 @@ public class Task {
         isDone = false;
     }
 
-    public void addTaskToList(Task[] list, String text) {
-        return;
-    }
-
     @Override
     public String toString() {
         return getStatusIcon() + " " + description;
