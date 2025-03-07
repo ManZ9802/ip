@@ -29,6 +29,10 @@ public class CommandManager {
                 TaskList.deleteTask(list, text);
                 break;
 
+            case "find":
+                TaskList.findTask(list, text);
+                break;
+
             case "bye":
                 Ui.exitProcess(list);
                 return false;

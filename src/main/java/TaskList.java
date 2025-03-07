@@ -95,4 +95,23 @@ public class TaskList {
         Ui.indentMessage("Now you have " + list.size() + " task(s)");
         Ui.printHoriLine();
     }
+
+    public static void findTask(ArrayList<Task> list, String text) {
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        String description = text.substring(5).trim();
+        for (Task task : list) {
+            if (task.toString().contains(description)) {
+                matchingTasks.add(task);
+            }
+        }
+        if (matchingTasks.isEmpty()) {
+            Ui.printHoriLine();
+            Ui.indentMessage("No tasks found!");
+            Ui.printHoriLine();
+            return;
+        }
+        Ui.printHoriLine();
+        Ui.indentMessage("Found " + matchingTasks.size() + " task(s)");
+        printList(matchingTasks);
+    }
 }
