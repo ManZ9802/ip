@@ -1,7 +1,16 @@
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Handles all methods that manipulate the list of tasks
+ */
 public class TaskList {
+    /**
+     * marks the specific task in the list as done or not
+     * @param list Task list
+     * @param text Task number in the list
+     * @param done True if task is to be marked as done
+     */
     static void markTask(ArrayList<Task> list, String text, boolean done) {
         String number = text.replaceAll("\\D+", ""); // Remove all non-digits
         int i = Integer.parseInt(number);
@@ -18,6 +27,14 @@ public class TaskList {
         Ui.printHoriLine();
     }
 
+    /**
+     * Creates a new task and adds it to the list
+     * @param list Task list
+     * @param text Task description, deadline and/or dates
+     * @param type Determines what type of task to be created
+     * @throws IllegalDeadlineException if user enters wrong argument for deadline task
+     * @throws IllegalEventException if user enters wrong argument for event task
+     */
     static void createAndAddTask(ArrayList<Task> list, String text, String type) throws IllegalDeadlineException, IllegalEventException {
         String taskName = text.substring(type.length()).trim();
         if (taskName.isEmpty()) {
@@ -65,6 +82,11 @@ public class TaskList {
         printNewEntry(list, Objects.requireNonNull(newTask));
     }
 
+    /**
+     * Deletes a task and removes it from the list
+     * @param list Task list
+     * @param text task number in the list
+     */
     public static void deleteTask(ArrayList<Task> list, String text) {
         String number = text.replaceAll("\\D+", "");
         int i = Integer.parseInt(number);
@@ -76,6 +98,10 @@ public class TaskList {
         list.remove(i - 1);
     }
 
+    /**
+     * prints the list out
+     * @param list Task list
+     */
     public static void printList(ArrayList<Task> list) {
         Ui.printHoriLine();
         if (list.isEmpty()) {
@@ -88,6 +114,11 @@ public class TaskList {
         Ui.printHoriLine();
     }
 
+    /**
+     * Informs user that task has been created and how many tasks there are in the list.
+     * @param list Task list
+     * @param key Task to be printed out
+     */
     public static void printNewEntry(ArrayList<Task> list, Task key) {
         Ui.printHoriLine();
         Ui.indentMessage("Added task to list:");

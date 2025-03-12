@@ -5,7 +5,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Represents storage class.
+ * Handles all methods related to storing and retrieving from Jerry.txt file.
+ */
+
 public class Storage {
+
+    /**
+     * Saves the list to path ./data/Jerry.txt.
+     * Creates this path if it does not exist
+     * @param list list to be saved
+     * @throws IOException if there is issues saving the file
+     */
     static void saveList(ArrayList<Task> list) throws IOException {
         File f = new File("./data/Jerry.txt");
 
@@ -20,6 +32,11 @@ public class Storage {
         fw.close();
     }
 
+    /**
+     * Retrieves the list from path ./data/Jerry.txt.
+     * List is empty if path does not exist
+     * @param list list that Jerry.txt will copy to
+     */
     static void loadTask(ArrayList<Task> list) {
         File file = new File("./data/Jerry.txt");
         try {

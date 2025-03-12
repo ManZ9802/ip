@@ -1,3 +1,6 @@
+/**
+ * Generic Task class with just a simple description and boolean on whether it is done
+ */
 public class Task {
     protected String description;
     protected boolean isDone;

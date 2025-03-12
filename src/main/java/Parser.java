@@ -1,4 +1,13 @@
+/**
+ * handles parsing of task from Jerry.txt file to list when starting the program
+ */
 public class Parser {
+    /**
+     * Goes through each line in the Jerry.txt file and creates a task to be added to the list
+     * based on information in the line
+     * @param line string of text inside the .txt file
+     * @return Task that is to be added into the list
+     */
     static Task parseTask(String line) {
         char taskType = line.charAt(1);
         boolean isDone = line.charAt(4) == 'X';
