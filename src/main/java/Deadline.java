@@ -1,3 +1,7 @@
+/**
+ * Deadline is part of the Task class with an extra /by to show when it needs to be completed
+ * @see Task
+ */
 public class Deadline extends Task {
     protected String by;
 

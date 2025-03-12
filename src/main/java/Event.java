@@ -1,3 +1,7 @@
+/**
+ * Event is part of the Task class that has a start and end time
+ * @see Task
+ */
 public class Event extends Task {
     protected String startTime;
     protected String endTime;
